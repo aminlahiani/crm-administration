@@ -9,6 +9,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
 
+import { useDispatch, useSelector } from "react-redux";
+import { login } from '../redux/actions/userAction';
+
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -30,9 +33,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignIn() {
+export default function SignIn({location, history }) {
   const classes = useStyles();
 
+  const dispatch = useDispatch();
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  const userLogin = useSelector((state) => state.userLogin);
+  const { loading, error, userInfo } = userLogin;
+  console.log( userInfo  )
+
+  const redirect = location.search ? location.search.split('=')[1] : '/abonnement'
+
+  React.useEffect(() => {
+    if (userInfo) {
+      history.push(redirect)
+    }
+  }, [history, userInfo, redirect])
+  const submitHandler = (e) => {
+    e.preventDefault();
+    dispatch(login(email, password ));
+  };
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -43,7 +65,7 @@ export default function SignIn() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} onSubmit={submitHandler}>
           <TextField
             variant="outlined"
             margin="normal"
@@ -53,6 +75,8 @@ export default function SignIn() {
             label="Email Address"
             name="email"
             autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             autoFocus
           />
           <TextField
@@ -63,6 +87,8 @@ export default function SignIn() {
             name="password"
             label="Password"
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             id="password"
             autoComplete="current-password"
           />
